@@ -15,7 +15,7 @@ import {
 
 class DramaCool extends MovieParser {
   override readonly name = 'DramaCool';
-  protected override baseUrl = 'https://asianc.co';
+  protected override baseUrl = 'https://dramacool.bg';
   protected override logo =
     'https://play-lh.googleusercontent.com/IaCb2JXII0OV611MQ-wSA8v_SAs9XF6E3TMDiuxGGXo4wp9bI60GtDASIqdERSTO5XU';
   protected override classPath = 'MOVIES.DramaCool';
@@ -209,23 +209,28 @@ class DramaCool extends MovieParser {
       switch (server) {
         case StreamingServers.AsianLoad:
           return {
+            headers: { Referer: serverUrl.origin },
             ...(await new AsianLoad(this.proxyConfig, this.adapter).extract(serverUrl)),
             download: this.downloadLink(episodeId),
           };
         case StreamingServers.MixDrop:
           return {
+            headers: { Referer: serverUrl.origin },
             sources: await new MixDrop(this.proxyConfig, this.adapter).extract(serverUrl),
           };
         case StreamingServers.StreamTape:
           return {
+            headers: { Referer: serverUrl.origin },
             sources: await new StreamTape(this.proxyConfig, this.adapter).extract(serverUrl),
           };
         case StreamingServers.StreamSB:
           return {
+            headers: { Referer: serverUrl.origin },
             sources: await new StreamSB(this.proxyConfig, this.adapter).extract(serverUrl),
           };
         case StreamingServers.StreamWish:
           return {
+            headers: { Referer: serverUrl.origin },
             ...(await new StreamWish(this.proxyConfig, this.adapter).extract(serverUrl)),
           };
         default:
@@ -261,6 +266,29 @@ class DramaCool extends MovieParser {
 
   fetchRecentMovies = async (page: number = 1): Promise<ISearch<IMovieResult>> => {
     return this.fetchData(`${this.baseUrl}/recently-added-movie?page=${page}`, page, false, true);
+  };
+
+  fetchSpotlight = async (): Promise<ISearch<IMovieResult>> => {
+    try {
+      const results: ISearch<IMovieResult> = { results: [] };
+      const { data } = await this.client.get(`${this.baseUrl}`);
+
+      const $ = load(data);
+
+      $('div.ls-slide').each((i, el) => {
+        results.results.push({
+          id: $(el).find('a').attr('href')?.slice(1)!,
+          title: $(el).find('img').attr('title')!,
+          url: `${this.baseUrl}${$(el).find('a').attr('href')}`,
+          cover: $(el).find('img').attr('src'),
+        });
+      });
+
+      return results;
+    } catch (err) {
+      console.error(err);
+      throw new Error((err as Error).message);
+    }
   };
 
   private async fetchData(
@@ -336,9 +364,13 @@ class DramaCool extends MovieParser {
   };
 }
 //testing fetchPopular via iife
-// (async () => {
-//   const dramaCool = new DramaCool();
-//   await dramaCool.fetchRecentTvShows();
-// })();
+/*
+(async () => {
+  const dramaCool = new DramaCool();
+  // const l=await dramaCool.fetchSpotlight();
+  const l = await dramaCool.fetchEpisodeSources('vincenzo-2021-episode-1');
+  console.log(l);
+})();
+*/
 
 export default DramaCool;

@@ -143,23 +143,28 @@ class DramaCool extends models_1.MovieParser {
                 switch (server) {
                     case models_1.StreamingServers.AsianLoad:
                         return {
+                            headers: { Referer: serverUrl.origin },
                             ...(await new extractors_1.AsianLoad(this.proxyConfig, this.adapter).extract(serverUrl)),
                             download: this.downloadLink(episodeId),
                         };
                     case models_1.StreamingServers.MixDrop:
                         return {
+                            headers: { Referer: serverUrl.origin },
                             sources: await new extractors_1.MixDrop(this.proxyConfig, this.adapter).extract(serverUrl),
                         };
                     case models_1.StreamingServers.StreamTape:
                         return {
+                            headers: { Referer: serverUrl.origin },
                             sources: await new extractors_1.StreamTape(this.proxyConfig, this.adapter).extract(serverUrl),
                         };
                     case models_1.StreamingServers.StreamSB:
                         return {
+                            headers: { Referer: serverUrl.origin },
                             sources: await new extractors_1.StreamSB(this.proxyConfig, this.adapter).extract(serverUrl),
                         };
                     case models_1.StreamingServers.StreamWish:
                         return {
+                            headers: { Referer: serverUrl.origin },
                             ...(await new extractors_1.StreamWish(this.proxyConfig, this.adapter).extract(serverUrl)),
                         };
                     default:
@@ -189,6 +194,27 @@ class DramaCool extends models_1.MovieParser {
         };
         this.fetchRecentMovies = async (page = 1) => {
             return this.fetchData(`${this.baseUrl}/recently-added-movie?page=${page}`, page, false, true);
+        };
+        this.fetchSpotlight = async () => {
+            try {
+                const results = { results: [] };
+                const { data } = await this.client.get(`${this.baseUrl}`);
+                const $ = (0, cheerio_1.load)(data);
+                $('div.ls-slide').each((i, el) => {
+                    var _a;
+                    results.results.push({
+                        id: (_a = $(el).find('a').attr('href')) === null || _a === void 0 ? void 0 : _a.slice(1),
+                        title: $(el).find('img').attr('title'),
+                        url: `${this.baseUrl}${$(el).find('a').attr('href')}`,
+                        cover: $(el).find('img').attr('src'),
+                    });
+                });
+                return results;
+            }
+            catch (err) {
+                console.error(err);
+                throw new Error(err.message);
+            }
         };
         this.downloadLink = (url) => {
             return url.replace(/^(https:\/\/[^\/]+)\/[^?]+(\?.+)$/, '$1/download$2');
@@ -280,9 +306,11 @@ class DramaCool extends models_1.MovieParser {
     }
 }
 //testing fetchPopular via iife
-// (async () => {
-//   const dramaCool = new DramaCool();
-//   await dramaCool.fetchRecentTvShows();
-// })();
+(async () => {
+    const dramaCool = new DramaCool();
+    // const l=await dramaCool.fetchSpotlight();
+    const l = await dramaCool.fetchEpisodeSources('vincenzo-2021-episode-1');
+    console.log(l);
+})();
 exports.default = DramaCool;
 //# sourceMappingURL=dramacool.js.map
