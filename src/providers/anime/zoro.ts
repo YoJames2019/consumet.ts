@@ -634,17 +634,17 @@ class Zoro extends AnimeParser {
     category?: 'sub' | 'dub' | 'raw' | 'both'
   ): Promise<ISource> {
     return new Promise(async (resolve, reject) => {
-      if (/.*$episode\$[0-9]+\$[a-z]+/.test(episodeId)) {
+      if (/.*\$episode\$[0-9]+\$[a-z]+/.test(episodeId)) {
         const data = episodeId.split('$');
         episodeId = data[2];
-        category = data[3] as 'sub' | 'dub' | 'raw';
+        category = data[3] as 'sub' | 'dub' | 'raw' | 'both';
       }
 
-      const categoriesToTry = category ? [category] : ['sub', 'raw'];
+      const categoriesToTry = category && category != 'both' ? [category] : ['sub', 'raw', 'dub'];
 
       for (const cat of categoriesToTry) {
         try {
-          const servers = await this.fetchEpisodeServers(episodeId, cat as 'sub' | 'raw');
+          const servers = await this.fetchEpisodeServers(episodeId, cat as 'sub' | 'raw' | 'dub');
 
           if (servers.length === 0) {
             console.log(`No servers found for category: ${cat}`);
@@ -668,7 +668,7 @@ class Zoro extends AnimeParser {
 
           const source = await this.extractSource(data.link, server);
           source.server = selectedServer.name;
-          source.category = cat as 'sub' | 'raw';
+          source.category = cat as 'sub' | 'raw' | 'dub';
           if (data.quality) source.quality = data.quality;
           if (data.intro) source.intro = data.intro;
           if (data.outro) source.outro = data.outro;
@@ -735,18 +735,18 @@ class Zoro extends AnimeParser {
 
 // Test function
 //command: npx ts-node src/providers/anime/zoro.ts
-// (async () => {
-//   try {
-//     const zoro = new Zoro();
-//     const episodeId = '12865';
-//     const category = 'sub';
+(async () => {
+  try {
+    const zoro = new Zoro();
+    const episodeId = 'kamikatsu-working-for-god-in-a-godless-world-18361$episode$100032$both';
+    const category = 'sub';
 
-//     console.log(`\nFetching sources for episode ID: ${episodeId}`);
-//     const sources = await zoro.fetchEpisodeSources(episodeId, undefined, category);
-//     console.log('Episode sources:', JSON.stringify(sources, null, 2));
-//   } catch (error) {
-//     console.error('Error:', (error as Error).message);
-//   }
-// })();
+    console.log(`\nFetching sources for episode ID: ${episodeId}`);
+    const sources = await zoro.fetchEpisodeSources(episodeId, undefined, category);
+    console.log('Episode sources:', JSON.stringify(sources, null, 2));
+  } catch (error) {
+    console.error('Error:', (error as Error).message);
+  }
+})();
 
 export default Zoro;

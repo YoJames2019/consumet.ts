@@ -566,12 +566,12 @@ class Zoro extends models_1.AnimeParser {
     }
     fetchEpisodeSources(episodeId, server = models_1.StreamingServers.VidStreaming, category) {
         return new Promise(async (resolve, reject) => {
-            if (/.*$episode\$[0-9]+\$[a-z]+/.test(episodeId)) {
+            if (/.*\$episode\$[0-9]+\$[a-z]+/.test(episodeId)) {
                 const data = episodeId.split('$');
                 episodeId = data[2];
                 category = data[3];
             }
-            const categoriesToTry = category ? [category] : ['sub', 'raw'];
+            const categoriesToTry = category && category != 'both' ? [category] : ['sub', 'raw', 'dub'];
             for (const cat of categoriesToTry) {
                 try {
                     const servers = await this.fetchEpisodeServers(episodeId, cat);
@@ -656,17 +656,18 @@ class Zoro extends models_1.AnimeParser {
 }
 // Test function
 //command: npx ts-node src/providers/anime/zoro.ts
-// (async () => {
-//   try {
-//     const zoro = new Zoro();
-//     const episodeId = '12865';
-//     const category = 'sub';
-//     console.log(`\nFetching sources for episode ID: ${episodeId}`);
-//     const sources = await zoro.fetchEpisodeSources(episodeId, undefined, category);
-//     console.log('Episode sources:', JSON.stringify(sources, null, 2));
-//   } catch (error) {
-//     console.error('Error:', (error as Error).message);
-//   }
-// })();
+(async () => {
+    try {
+        const zoro = new Zoro();
+        const episodeId = 'kamikatsu-working-for-god-in-a-godless-world-18361$episode$100032$both';
+        const category = 'sub';
+        console.log(`\nFetching sources for episode ID: ${episodeId}`);
+        const sources = await zoro.fetchEpisodeSources(episodeId, undefined, category);
+        console.log('Episode sources:', JSON.stringify(sources, null, 2));
+    }
+    catch (error) {
+        console.error('Error:', error.message);
+    }
+})();
 exports.default = Zoro;
 //# sourceMappingURL=zoro.js.map
