@@ -677,13 +677,14 @@ class Zoro extends AnimeParser {
     preferredServer: StreamingServers | string
   ): IExtendedEpisodeServer | undefined {
     const serverMap: { [key: string]: string } = {
-      [StreamingServers.VidStreaming]: 'HD-1',
-      [StreamingServers.VidCloud]: 'HD-2',
-      [StreamingServers.StreamSB]: 'StreamSB',
-      [StreamingServers.StreamTape]: 'StreamTape',
+      [StreamingServers.VidStreaming]: 'hd-1',
+      [StreamingServers.VidCloud]: 'hd-2'
     };
 
-    return servers.find(s => s.name === (serverMap[preferredServer] || preferredServer)) || servers[0];
+    const normalizedServer = preferredServer.toLowerCase()
+    const mappedServer = serverMap[normalizedServer] || normalizedServer
+
+    return servers.find(s => s.name.toLowerCase() === mappedServer) || servers[0];
   }
 
   private async extractSource(url: string, server: StreamingServers | string): Promise<IExtendedSource> {
