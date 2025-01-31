@@ -735,18 +735,18 @@ class Zoro extends AnimeParser {
 
 // Test function
 //command: npx ts-node src/providers/anime/zoro.ts
-(async () => {
-  try {
-    const zoro = new Zoro();
-    const episodeId = 'kamikatsu-working-for-god-in-a-godless-world-18361$episode$100032$both';
-    const category = 'sub';
+// (async () => {
+//   try {
+//     const zoro = new Zoro();
+//     const episodeId = 'kamikatsu-working-for-god-in-a-godless-world-18361$episode$100032$both';
+//     const category = 'sub';
 
-    console.log(`\nFetching sources for episode ID: ${episodeId}`);
-    const sources = await zoro.fetchEpisodeSources(episodeId, undefined, category);
-    console.log('Episode sources:', JSON.stringify(sources, null, 2));
-  } catch (error) {
-    console.error('Error:', (error as Error).message);
-  }
-})();
+//     console.log(`\nFetching sources for episode ID: ${episodeId}`);
+//     const sources = await zoro.fetchEpisodeSources(episodeId, undefined, category);
+//     console.log('Episode sources:', JSON.stringify(sources, null, 2));
+//   } catch (error) {
+//     console.error('Error:', (error as Error).message);
+//   }
+// })();
 
 export default Zoro;
