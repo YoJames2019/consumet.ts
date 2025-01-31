@@ -631,9 +631,15 @@ class Zoro extends AnimeParser {
   override fetchEpisodeSources(
     episodeId: string,
     server: StreamingServers = StreamingServers.VidStreaming,
-    category?: 'sub' | 'dub' | 'raw'
+    category?: 'sub' | 'dub' | 'raw' | 'both'
   ): Promise<ISource> {
     return new Promise(async (resolve, reject) => {
+      if (/.*$episode\$[0-9]+\$[a-z]+/.test(episodeId)) {
+        const data = episodeId.split('$');
+        episodeId = data[2];
+        category = data[3] as 'sub' | 'dub' | 'raw';
+      }
+
       const categoriesToTry = category ? [category] : ['sub', 'raw'];
 
       for (const cat of categoriesToTry) {

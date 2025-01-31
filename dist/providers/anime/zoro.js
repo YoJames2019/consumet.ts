@@ -566,6 +566,11 @@ class Zoro extends models_1.AnimeParser {
     }
     fetchEpisodeSources(episodeId, server = models_1.StreamingServers.VidStreaming, category) {
         return new Promise(async (resolve, reject) => {
+            if (/.*$episode\$[0-9]+\$[a-z]+/.test(episodeId)) {
+                const data = episodeId.split('$');
+                episodeId = data[2];
+                category = data[3];
+            }
             const categoriesToTry = category ? [category] : ['sub', 'raw'];
             for (const cat of categoriesToTry) {
                 try {
