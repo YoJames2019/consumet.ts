@@ -97,10 +97,6 @@ declare class Zoro extends AnimeParser {
      * @param id Anime id
      */
     fetchAnimeInfo: (id: string) => Promise<IAnimeInfo>;
-    /**
-     *
-     * @param episodeId Episode id
-     */
     private verifyLoginState;
     private retrieveServerId;
     /**

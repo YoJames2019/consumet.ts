@@ -678,11 +678,11 @@ class Zoro extends AnimeParser {
   ): IExtendedEpisodeServer | undefined {
     const serverMap: { [key: string]: string } = {
       [StreamingServers.VidStreaming]: 'hd-1',
-      [StreamingServers.VidCloud]: 'hd-2'
+      [StreamingServers.VidCloud]: 'hd-2',
     };
 
-    const normalizedServer = preferredServer.toLowerCase()
-    const mappedServer = serverMap[normalizedServer] || normalizedServer
+    const normalizedServer = preferredServer.toLowerCase();
+    const mappedServer = serverMap[normalizedServer] || normalizedServer;
 
     return servers.find(s => s.name.toLowerCase() === mappedServer) || servers[0];
   }
