@@ -628,7 +628,7 @@ class Zoro extends models_1.AnimeParser {
             [models_1.StreamingServers.VidCloud]: 'hd-2',
         };
         const normalizedServer = server.toLowerCase();
-        return (serverMap[normalizedServer] || normalizedServer);
+        return serverMap[normalizedServer] || normalizedServer;
     }
     selectServer(servers, preferredServer) {
         const mappedServer = this.mapServerName(preferredServer) || preferredServer.toLowerCase();
