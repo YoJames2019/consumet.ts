@@ -101,7 +101,7 @@ declare class Zoro extends AnimeParser {
     isFullZoroEpisodeId: (id: string) => boolean;
     parseZoroEpisodeId: (id: string) => {
         id: string;
-        type: CategoryType;
+        category: CategoryType;
     };
     private verifyLoginState;
     private retrieveServerId;

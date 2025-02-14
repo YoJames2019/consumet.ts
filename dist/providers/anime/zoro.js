@@ -97,13 +97,13 @@ class Zoro extends models_1.AnimeParser {
         this.isFullZoroEpisodeId = (id) => /.*\$episode\$[0-9]+\$[a-z]+/.test(id);
         this.parseZoroEpisodeId = (id) => {
             if (!isNaN(parseInt(id))) {
-                return { id, type: 'both' };
+                return { id, category: 'both' };
             }
             if (this.isFullZoroEpisodeId(id)) {
                 const data = id.split('$');
-                return { id: data[2], type: data[3] };
+                return { id: data[2], category: data[3] };
             }
-            return { id, type: 'both' };
+            return { id, category: 'both' };
         };
         this.verifyLoginState = async (connectSid) => {
             try {
@@ -549,7 +549,8 @@ class Zoro extends models_1.AnimeParser {
     fetchEpisodeServers(episodeId, category = 'sub') {
         return new Promise(async (resolve, reject) => {
             try {
-                const { id, type } = this.parseZoroEpisodeId(episodeId);
+                const parsed = this.parseZoroEpisodeId(episodeId);
+                const id = parsed.id;
                 const servers = [];
                 const response = await this.client.get(`${this.baseUrl}/ajax/v2/episode/servers?episodeId=${id}`);
                 if (typeof response.data === 'object' && response.data.html) {
@@ -578,16 +579,17 @@ class Zoro extends models_1.AnimeParser {
     }
     fetchEpisodeSources(episodeId, server = models_1.StreamingServers.VidStreaming, category) {
         return new Promise(async (resolve, reject) => {
-            let { id, type } = this.parseZoroEpisodeId(episodeId);
-            if (category)
-                type = category;
-            const categoriesToTry = type && type != 'both' ? [type] : ['sub', 'raw', 'dub'];
+            const parsed = this.parseZoroEpisodeId(episodeId);
+            const id = parsed.id;
+            if (!category)
+                category = parsed.category;
+            const categoriesToTry = category && category != 'both' ? [category] : ['sub', 'raw', 'dub'];
             for (const cat of categoriesToTry) {
                 try {
                     const servers = await this.fetchEpisodeServers(id, cat);
                     if (servers.length === 0) {
                         console.log(`No servers found for category: ${cat}`);
-                        if (!type) {
+                        if (!category) {
                             continue; // Try next category if no specific category was requested
                         }
                         else {
@@ -615,7 +617,7 @@ class Zoro extends models_1.AnimeParser {
                     return resolve(source);
                 }
                 catch (err) {
-                    if (type) {
+                    if (category) {
                         return reject(err);
                     }
                     // If no specific category was requested, the loop will continue to try the next category
