@@ -489,9 +489,9 @@ class Zoro extends AnimeParser {
 
   isFullZoroEpisodeId = (id: string) => /.*\$episode\$[0-9]+\$[a-z]+/.test(id);
 
-  parseZoroEpisodeId = (id: string): { id: string; type?: CategoryType } => {
+  parseZoroEpisodeId = (id: string): { id: string; type: CategoryType } => {
     if (!isNaN(parseInt(id))) {
-      return { id };
+      return { id, type: 'both' };
     }
 
     if (this.isFullZoroEpisodeId(id)) {
@@ -499,7 +499,7 @@ class Zoro extends AnimeParser {
       return { id: data[2], type: data[3] as CategoryType };
     }
 
-    return { id };
+    return { id, type: 'both' };
   };
 
   private verifyLoginState = async (connectSid: string): Promise<boolean> => {
@@ -647,10 +647,12 @@ class Zoro extends AnimeParser {
   override fetchEpisodeSources(
     episodeId: string,
     server: StreamingServers | string = StreamingServers.VidStreaming,
-    category: 'sub' | 'dub' | 'raw' | 'both' = 'both'
+    category?: 'sub' | 'dub' | 'raw' | 'both'
   ): Promise<ISource> {
     return new Promise(async (resolve, reject) => {
-      const { id, type = category } = this.parseZoroEpisodeId(episodeId);
+      let { id, type } = this.parseZoroEpisodeId(episodeId);
+
+      if (category) type = category;
 
       const categoriesToTry = type && type != 'both' ? [type] : ['sub', 'raw', 'dub'];
 

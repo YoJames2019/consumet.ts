@@ -97,13 +97,13 @@ class Zoro extends models_1.AnimeParser {
         this.isFullZoroEpisodeId = (id) => /.*\$episode\$[0-9]+\$[a-z]+/.test(id);
         this.parseZoroEpisodeId = (id) => {
             if (!isNaN(parseInt(id))) {
-                return { id };
+                return { id, type: 'both' };
             }
             if (this.isFullZoroEpisodeId(id)) {
                 const data = id.split('$');
                 return { id: data[2], type: data[3] };
             }
-            return { id };
+            return { id, type: 'both' };
         };
         this.verifyLoginState = async (connectSid) => {
             try {
@@ -576,9 +576,11 @@ class Zoro extends models_1.AnimeParser {
             }
         });
     }
-    fetchEpisodeSources(episodeId, server = models_1.StreamingServers.VidStreaming, category = 'both') {
+    fetchEpisodeSources(episodeId, server = models_1.StreamingServers.VidStreaming, category) {
         return new Promise(async (resolve, reject) => {
-            const { id, type = category } = this.parseZoroEpisodeId(episodeId);
+            let { id, type } = this.parseZoroEpisodeId(episodeId);
+            if (category)
+                type = category;
             const categoriesToTry = type && type != 'both' ? [type] : ['sub', 'raw', 'dub'];
             for (const cat of categoriesToTry) {
                 try {
