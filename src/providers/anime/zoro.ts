@@ -23,12 +23,14 @@ interface IExtendedSource extends ISource {
   quality?: string;
   intro?: any;
   outro?: any;
-  category?: 'sub' | 'raw' | 'dub'; // Add this line
+  category?: CategoryType; // Add this line
 }
 
 interface IExtendedEpisodeServer extends IEpisodeServer {
-  category?: 'sub' | 'raw' | 'dub';
+  category?: CategoryType;
 }
+
+type CategoryType = 'sub' | 'raw' | 'dub' | 'both';
 
 class Zoro extends AnimeParser {
   override readonly name = 'Zoro';
@@ -485,6 +487,21 @@ class Zoro extends AnimeParser {
     }
   };
 
+  isFullZoroEpisodeId = (id: string) => /.*\$episode\$[0-9]+\$[a-z]+/.test(id);
+
+  parseZoroEpisodeId = (id: string): { id: string; type?: CategoryType } => {
+    if (!isNaN(parseInt(id))) {
+      return { id };
+    }
+
+    if (this.isFullZoroEpisodeId(id)) {
+      const data = id.split('$');
+      return { id: data[2], type: data[3] as CategoryType };
+    }
+
+    return { id };
+  };
+
   private verifyLoginState = async (connectSid: string): Promise<boolean> => {
     try {
       const { data } = await this.client.get(`${this.baseUrl}/ajax/login-state`, {
@@ -597,10 +614,9 @@ class Zoro extends AnimeParser {
   ): Promise<IExtendedEpisodeServer[]> {
     return new Promise(async (resolve, reject) => {
       try {
+        const { id, type } = this.parseZoroEpisodeId(episodeId);
         const servers: IExtendedEpisodeServer[] = [];
-        const response = await this.client.get(
-          `${this.baseUrl}/ajax/v2/episode/servers?episodeId=${episodeId}`
-        );
+        const response = await this.client.get(`${this.baseUrl}/ajax/v2/episode/servers?episodeId=${id}`);
 
         if (typeof response.data === 'object' && response.data.html) {
           const $ = load(response.data.html);
@@ -618,7 +634,7 @@ class Zoro extends AnimeParser {
         }
 
         if (servers.length === 0) {
-          throw new Error(`No servers found for episode ${episodeId} with category ${category}`);
+          throw new Error(`No servers found for episode ${id} with category ${category}`);
         }
 
         resolve(servers);
@@ -634,21 +650,17 @@ class Zoro extends AnimeParser {
     category?: 'sub' | 'dub' | 'raw' | 'both'
   ): Promise<ISource> {
     return new Promise(async (resolve, reject) => {
-      if (/.*\$episode\$[0-9]+\$[a-z]+/.test(episodeId)) {
-        const data = episodeId.split('$');
-        episodeId = data[2];
-        category = data[3] as 'sub' | 'dub' | 'raw' | 'both';
-      }
+      const { id, type = category } = this.parseZoroEpisodeId(episodeId);
 
-      const categoriesToTry = category && category != 'both' ? [category] : ['sub', 'raw', 'dub'];
+      const categoriesToTry = type && type != 'both' ? [type] : ['sub', 'raw', 'dub'];
 
       for (const cat of categoriesToTry) {
         try {
-          const servers = await this.fetchEpisodeServers(episodeId, cat as 'sub' | 'raw' | 'dub');
+          const servers = await this.fetchEpisodeServers(id, cat as 'sub' | 'raw' | 'dub');
 
           if (servers.length === 0) {
             console.log(`No servers found for category: ${cat}`);
-            if (!category) {
+            if (!type) {
               continue; // Try next category if no specific category was requested
             } else {
               throw new Error(`No servers found for category: ${cat}`);
@@ -675,7 +687,7 @@ class Zoro extends AnimeParser {
 
           return resolve(source as ISource);
         } catch (err) {
-          if (category) {
+          if (type) {
             return reject(err);
           }
           // If no specific category was requested, the loop will continue to try the next category
@@ -741,9 +753,13 @@ class Zoro extends AnimeParser {
 //     const episodeId = 'kamikatsu-working-for-god-in-a-godless-world-18361$episode$100032$both';
 //     const category = 'sub';
 
+//     console.log(`\nParsed episode id: ${JSON.stringify(zoro.parseZoroEpisodeId(episodeId), null, 2)}`)
 //     console.log(`\nFetching sources for episode ID: ${episodeId}`);
 //     const sources = await zoro.fetchEpisodeSources(episodeId, undefined, category);
 //     console.log('Episode sources:', JSON.stringify(sources, null, 2));
+//     console.log(`\nFetching servers for episode ID: ${episodeId}`);
+//     const servers = await zoro.fetchEpisodeServers(episodeId, category)
+//     console.log('Episode sources:', JSON.stringify(servers, null, 2));
 //   } catch (error) {
 //     console.error('Error:', (error as Error).message);
 //   }
