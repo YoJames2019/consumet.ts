@@ -576,7 +576,7 @@ class Zoro extends models_1.AnimeParser {
             }
         });
     }
-    fetchEpisodeSources(episodeId, server = models_1.StreamingServers.VidStreaming, category) {
+    fetchEpisodeSources(episodeId, server = models_1.StreamingServers.VidStreaming, category = 'both') {
         return new Promise(async (resolve, reject) => {
             const { id, type = category } = this.parseZoroEpisodeId(episodeId);
             const categoriesToTry = type && type != 'both' ? [type] : ['sub', 'raw', 'dub'];
@@ -627,6 +627,8 @@ class Zoro extends models_1.AnimeParser {
             [models_1.StreamingServers.VidStreaming]: 'hd-1',
             [models_1.StreamingServers.VidCloud]: 'hd-2',
         };
+        if (!server || typeof server !== 'string')
+            return null;
         const normalizedServer = server.toLowerCase();
         return serverMap[normalizedServer] || normalizedServer;
     }

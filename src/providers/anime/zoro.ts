@@ -647,7 +647,7 @@ class Zoro extends AnimeParser {
   override fetchEpisodeSources(
     episodeId: string,
     server: StreamingServers | string = StreamingServers.VidStreaming,
-    category?: 'sub' | 'dub' | 'raw' | 'both'
+    category: 'sub' | 'dub' | 'raw' | 'both' = 'both'
   ): Promise<ISource> {
     return new Promise(async (resolve, reject) => {
       const { id, type = category } = this.parseZoroEpisodeId(episodeId);
@@ -698,11 +698,13 @@ class Zoro extends AnimeParser {
     });
   }
 
-  private mapServerName(server: string): string {
+  private mapServerName(server: string): string | null {
     const serverMap: { [key: string]: string } = {
       [StreamingServers.VidStreaming]: 'hd-1',
       [StreamingServers.VidCloud]: 'hd-2',
     };
+
+    if (!server || typeof server !== 'string') return null;
 
     const normalizedServer = server.toLowerCase();
     return serverMap[normalizedServer] || normalizedServer;
