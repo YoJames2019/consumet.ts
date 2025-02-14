@@ -601,7 +601,7 @@ class Zoro extends models_1.AnimeParser {
                     if (!data.link) {
                         throw new Error(`No episode sources found for category: ${cat}`);
                     }
-                    const source = await this.extractSource(data.link, server);
+                    const source = await this.extractSource(data.link, selectedServer.name);
                     source.server = selectedServer.name;
                     source.category = cat;
                     if (data.quality)
@@ -674,11 +674,11 @@ class Zoro extends models_1.AnimeParser {
 //     const category = 'sub';
 //     console.log(`\nParsed episode id: ${JSON.stringify(zoro.parseZoroEpisodeId(episodeId), null, 2)}`)
 //     console.log(`\nFetching sources for episode ID: ${episodeId}`);
-//     const sources = await zoro.fetchEpisodeSources(episodeId, undefined, category);
+//     const sources = await zoro.fetchEpisodeSources(episodeId, "hd-1", category);
 //     console.log('Episode sources:', JSON.stringify(sources, null, 2));
 //     console.log(`\nFetching servers for episode ID: ${episodeId}`);
 //     const servers = await zoro.fetchEpisodeServers(episodeId, category)
-//     console.log('Episode sources:', JSON.stringify(servers, null, 2));
+//     console.log('Episode servers:', JSON.stringify(servers, null, 2));
 //   } catch (error) {
 //     console.error('Error:', (error as Error).message);
 //   }

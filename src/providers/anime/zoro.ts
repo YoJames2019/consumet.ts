@@ -646,7 +646,7 @@ class Zoro extends AnimeParser {
 
   override fetchEpisodeSources(
     episodeId: string,
-    server: StreamingServers = StreamingServers.VidStreaming,
+    server: StreamingServers | string = StreamingServers.VidStreaming,
     category?: 'sub' | 'dub' | 'raw' | 'both'
   ): Promise<ISource> {
     return new Promise(async (resolve, reject) => {
@@ -678,7 +678,7 @@ class Zoro extends AnimeParser {
             throw new Error(`No episode sources found for category: ${cat}`);
           }
 
-          const source = await this.extractSource(data.link, server);
+          const source = await this.extractSource(data.link, selectedServer.name);
           source.server = selectedServer.name;
           source.category = cat as 'sub' | 'raw' | 'dub';
           if (data.quality) source.quality = data.quality;
@@ -759,11 +759,11 @@ class Zoro extends AnimeParser {
 
 //     console.log(`\nParsed episode id: ${JSON.stringify(zoro.parseZoroEpisodeId(episodeId), null, 2)}`)
 //     console.log(`\nFetching sources for episode ID: ${episodeId}`);
-//     const sources = await zoro.fetchEpisodeSources(episodeId, undefined, category);
+//     const sources = await zoro.fetchEpisodeSources(episodeId, "hd-1", category);
 //     console.log('Episode sources:', JSON.stringify(sources, null, 2));
 //     console.log(`\nFetching servers for episode ID: ${episodeId}`);
 //     const servers = await zoro.fetchEpisodeServers(episodeId, category)
-//     console.log('Episode sources:', JSON.stringify(servers, null, 2));
+//     console.log('Episode servers:', JSON.stringify(servers, null, 2));
 //   } catch (error) {
 //     console.error('Error:', (error as Error).message);
 //   }

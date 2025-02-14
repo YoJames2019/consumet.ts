@@ -117,7 +117,7 @@ declare class Zoro extends AnimeParser {
      * @param episodeId Episode id
      */
     fetchEpisodeServers(episodeId: string, category?: 'sub' | 'raw' | 'dub'): Promise<IExtendedEpisodeServer[]>;
-    fetchEpisodeSources(episodeId: string, server?: StreamingServers, category?: 'sub' | 'dub' | 'raw' | 'both'): Promise<ISource>;
+    fetchEpisodeSources(episodeId: string, server?: StreamingServers | string, category?: 'sub' | 'dub' | 'raw' | 'both'): Promise<ISource>;
     private mapServerName;
     private selectServer;
     private extractSource;
