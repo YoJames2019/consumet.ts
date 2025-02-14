@@ -622,13 +622,16 @@ class Zoro extends models_1.AnimeParser {
             reject(new Error('No episode sources found'));
         });
     }
-    selectServer(servers, preferredServer) {
+    mapServerName(server) {
         const serverMap = {
             [models_1.StreamingServers.VidStreaming]: 'hd-1',
             [models_1.StreamingServers.VidCloud]: 'hd-2',
         };
-        const normalizedServer = preferredServer.toLowerCase();
-        const mappedServer = serverMap[normalizedServer] || normalizedServer;
+        const normalizedServer = server.toLowerCase();
+        return (serverMap[normalizedServer] || normalizedServer);
+    }
+    selectServer(servers, preferredServer) {
+        const mappedServer = this.mapServerName(preferredServer) || preferredServer.toLowerCase();
         return servers.find(s => s.name.toLowerCase() === mappedServer) || servers[0];
     }
     async extractSource(url, server) {

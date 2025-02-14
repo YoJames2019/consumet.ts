@@ -698,17 +698,21 @@ class Zoro extends AnimeParser {
     });
   }
 
-  private selectServer(
-    servers: IExtendedEpisodeServer[],
-    preferredServer: StreamingServers | string
-  ): IExtendedEpisodeServer | undefined {
+  mapServerName(server: string): StreamingServers {
     const serverMap: { [key: string]: string } = {
       [StreamingServers.VidStreaming]: 'hd-1',
       [StreamingServers.VidCloud]: 'hd-2',
     };
 
-    const normalizedServer = preferredServer.toLowerCase();
-    const mappedServer = serverMap[normalizedServer] || normalizedServer;
+    const normalizedServer = server.toLowerCase();
+    return (serverMap[normalizedServer] || normalizedServer) as StreamingServers;
+  }
+
+  private selectServer(
+    servers: IExtendedEpisodeServer[],
+    preferredServer: StreamingServers | string
+  ): IExtendedEpisodeServer | undefined {
+    const mappedServer = this.mapServerName(preferredServer) || preferredServer.toLowerCase();
 
     return servers.find(s => s.name.toLowerCase() === mappedServer) || servers[0];
   }
