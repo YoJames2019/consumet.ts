@@ -1,8 +1,5 @@
-import { AnimeParser, IAnimeEpisode, IAnimeInfo, IAnimeResult, IEpisodeServer, ISearch, ISource, StreamingServers } from '../../models';
-interface IExtendedEpisodeServer extends IEpisodeServer {
-    category?: CategoryType;
-}
-type CategoryType = 'sub' | 'raw' | 'dub' | 'both';
+import { AnimeParser, IAnimeEpisode, IAnimeInfo, IAnimeResult, ISearch, ISource, StreamingServers } from '../../models';
+import { AllEpisodeSources, ExtendedCategoryType, IExtendedEpisodeServer, IExtendedEpisodeServers } from '../../models/types';
 declare class Zoro extends AnimeParser {
     readonly name = "Zoro";
     protected baseUrl: string;
@@ -101,7 +98,7 @@ declare class Zoro extends AnimeParser {
     isFullZoroEpisodeId: (id: string) => boolean;
     parseZoroEpisodeId: (id: string) => {
         id: string;
-        category: CategoryType;
+        category: ExtendedCategoryType;
     };
     private verifyLoginState;
     private retrieveServerId;
@@ -117,7 +114,9 @@ declare class Zoro extends AnimeParser {
      * @param episodeId Episode id
      */
     fetchEpisodeServers(episodeId: string, category?: 'sub' | 'raw' | 'dub'): Promise<IExtendedEpisodeServer[]>;
-    fetchEpisodeSources(episodeId: string, server?: StreamingServers | string, category?: 'sub' | 'dub' | 'raw' | 'both'): Promise<ISource>;
+    fetchAllEpisodeServers(episodeId: string): Promise<IExtendedEpisodeServers>;
+    fetchAllEpisodeSources(episodeId: string): Promise<AllEpisodeSources>;
+    fetchEpisodeSources(episodeId: string, server?: StreamingServers | string, category?: ExtendedCategoryType): Promise<ISource>;
     private mapServerName;
     private selectServer;
     private extractSource;

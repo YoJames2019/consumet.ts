@@ -47,6 +47,7 @@ import Crunchyroll from '../anime/crunchyroll';
 import Bilibili from '../anime/bilibili';
 import NineAnime from '../anime/9anime';
 import { ANIFY_URL, compareTwoStrings, getHashFromImage } from '../../utils/utils';
+import { AllEpisodeSources, IExtendedEpisodeServers } from '../../models/types';
 
 class Anilist extends AnimeParser {
   override readonly name = 'Anilist';
@@ -707,6 +708,18 @@ class Anilist extends AnimeParser {
       return animeInfo;
     } catch (err) {
       throw new Error((err as Error).message);
+    }
+  };
+
+  fetchAllEpisodeSources = async (episodeId: string): Promise<AllEpisodeSources> => {
+    try {
+      if (this.provider instanceof Zoro) {
+        return new Zoro().fetchAllEpisodeSources(episodeId);
+      } else {
+        throw new Error('NOT IMPLEMENTED FOR PROVIDER');
+      }
+    } catch (err) {
+      throw new Error(`${err}`);
     }
   };
 

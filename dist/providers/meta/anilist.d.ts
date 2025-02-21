@@ -1,5 +1,6 @@
 import { AxiosAdapter } from 'axios';
 import { AnimeParser, ISearch, IAnimeInfo, IAnimeResult, ISource, IAnimeEpisode, IEpisodeServer, Genres, MangaParser, IMangaChapterPage, IMangaInfo, IMangaResult, ProxyConfig, IStaff } from '../../models';
+import { AllEpisodeSources } from '../../models/types';
 declare class Anilist extends AnimeParser {
     proxyConfig?: ProxyConfig | undefined;
     readonly name = "Anilist";
@@ -47,6 +48,7 @@ declare class Anilist extends AnimeParser {
      * @param fetchFiller to get filler boolean on the episode object (optional) set to `true` to get filler boolean on the episode object.
      */
     fetchAnimeInfo: (id: string, dub?: boolean, fetchFiller?: boolean) => Promise<IAnimeInfo>;
+    fetchAllEpisodeSources: (episodeId: string) => Promise<AllEpisodeSources>;
     /**
      *
      * @param episodeId Episode id

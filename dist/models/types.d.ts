@@ -130,6 +130,28 @@ export interface IEpisodeServer {
     name: string;
     url: string;
 }
+export interface IExtendedEpisodeServer extends IEpisodeServer {
+    category?: CategoryType;
+}
+export type CategoryType = 'sub' | 'raw' | 'dub';
+export type ExtendedCategoryType = CategoryType | 'both';
+export interface IExtendedEpisodeServers {
+    sub: IExtendedEpisodeServer[];
+    dub: IExtendedEpisodeServer[];
+    raw: IExtendedEpisodeServer[];
+}
+export interface AllEpisodeSources {
+    sub: IExtendedSource[];
+    dub: IExtendedSource[];
+    raw: IExtendedSource[];
+}
+interface IExtendedSource extends ISource {
+    server?: string;
+    quality?: string;
+    intro?: any;
+    outro?: any;
+    category?: CategoryType;
+}
 export interface IVideo {
     /**
      * The **MAIN URL** of the video provider that should take you to the video

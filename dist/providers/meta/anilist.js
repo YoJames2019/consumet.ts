@@ -572,6 +572,19 @@ class Anilist extends models_1.AnimeParser {
                 throw new Error(err.message);
             }
         };
+        this.fetchAllEpisodeSources = async (episodeId) => {
+            try {
+                if (this.provider instanceof zoro_1.default) {
+                    return new zoro_1.default().fetchAllEpisodeSources(episodeId);
+                }
+                else {
+                    throw new Error('NOT IMPLEMENTED FOR PROVIDER');
+                }
+            }
+            catch (err) {
+                throw new Error(`${err}`);
+            }
+        };
         /**
          *
          * @param episodeId Episode id

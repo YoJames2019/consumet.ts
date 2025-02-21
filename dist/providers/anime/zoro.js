@@ -567,14 +567,77 @@ class Zoro extends models_1.AnimeParser {
                 else {
                     throw new Error('Unexpected response format');
                 }
-                if (servers.length === 0) {
-                    throw new Error(`No servers found for episode ${id} with category ${category}`);
+                resolve(servers);
+            }
+            catch (err) {
+                reject(err);
+            }
+        });
+    }
+    fetchAllEpisodeServers(episodeId) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const parsed = this.parseZoroEpisodeId(episodeId);
+                const id = parsed.id;
+                const servers = {
+                    sub: [],
+                    dub: [],
+                    raw: [],
+                };
+                const response = await this.client.get(`${this.baseUrl}/ajax/v2/episode/servers?episodeId=${id}`);
+                if (typeof response.data === 'object' && response.data.html) {
+                    const $ = (0, cheerio_1.load)(response.data.html);
+                    for (let cat of ['sub', 'raw', 'dub']) {
+                        $(`.servers-${cat} .server-item`).each((_, el) => {
+                            const server = $(el);
+                            servers[cat].push({
+                                name: server.find('a').text().trim(),
+                                url: `${this.baseUrl}/ajax/v2/episode/sources?id=${server.attr('data-id')}`,
+                            });
+                        });
+                    }
+                }
+                else {
+                    throw new Error('Unexpected response format');
                 }
                 resolve(servers);
             }
             catch (err) {
                 reject(err);
             }
+        });
+    }
+    fetchAllEpisodeSources(episodeId) {
+        return new Promise(async (resolve, reject) => {
+            const parsed = this.parseZoroEpisodeId(episodeId);
+            const id = parsed.id;
+            const categories = await this.fetchAllEpisodeServers(id);
+            const catSources = {
+                sub: [],
+                dub: [],
+                raw: [],
+            };
+            for (const cat of Object.keys(categories)) {
+                const catServers = categories[cat];
+                if (catServers.length == 0)
+                    continue;
+                for (const server of catServers) {
+                    const { data } = await this.client.get(server.url);
+                    if (!data.link)
+                        continue;
+                    const source = await this.extractSource(data.link, server.name);
+                    source.server = server.name;
+                    source.category = cat;
+                    if (data.quality)
+                        source.quality = data.quality;
+                    if (data.intro)
+                        source.intro = data.intro;
+                    if (data.outro)
+                        source.outro = data.outro;
+                    catSources[cat].push(source);
+                }
+            }
+            resolve(catSources);
         });
     }
     fetchEpisodeSources(episodeId, server = models_1.StreamingServers.VidStreaming, category) {
@@ -620,7 +683,6 @@ class Zoro extends models_1.AnimeParser {
                     if (category) {
                         return reject(err);
                     }
-                    // If no specific category was requested, the loop will continue to try the next category
                 }
             }
             reject(new Error('No episode sources found'));
@@ -676,14 +738,13 @@ class Zoro extends models_1.AnimeParser {
 // (async () => {
 //   try {
 //     const zoro = new Zoro();
-//     const episodeId = 'kamikatsu-working-for-god-in-a-godless-world-18361$episode$100032$both';
-//     const category = 'sub';
+//     const episodeId = 'from-bureaucrat-to-villainess-dads-been-reincarnated-19453$episode$133234$sub';
 //     console.log(`\nParsed episode id: ${JSON.stringify(zoro.parseZoroEpisodeId(episodeId), null, 2)}`)
 //     console.log(`\nFetching sources for episode ID: ${episodeId}`);
-//     const sources = await zoro.fetchEpisodeSources(episodeId, "hd-1", category);
+//     const sources = await zoro.fetchAllEpisodeSources(episodeId);
 //     console.log('Episode sources:', JSON.stringify(sources, null, 2));
 //     console.log(`\nFetching servers for episode ID: ${episodeId}`);
-//     const servers = await zoro.fetchEpisodeServers(episodeId, category)
+//     const servers = await zoro.fetchAllEpisodeServers(episodeId)
 //     console.log('Episode servers:', JSON.stringify(servers, null, 2));
 //   } catch (error) {
 //     console.error('Error:', (error as Error).message);
