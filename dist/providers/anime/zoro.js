@@ -96,7 +96,7 @@ class Zoro extends models_1.AnimeParser {
         };
         this.isFullZoroEpisodeId = (id) => /.*\$episode\$[0-9]+\$[a-z]+/.test(id);
         this.parseZoroEpisodeId = (id) => {
-            if (!isNaN(parseInt(id))) {
+            if (/^\d+$/.test(id)) {
                 return { id, category: 'both' };
             }
             if (this.isFullZoroEpisodeId(id)) {

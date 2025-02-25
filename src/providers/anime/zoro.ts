@@ -490,7 +490,7 @@ class Zoro extends AnimeParser {
   isFullZoroEpisodeId = (id: string) => /.*\$episode\$[0-9]+\$[a-z]+/.test(id);
 
   parseZoroEpisodeId = (id: string): { id: string; category: ExtendedCategoryType } => {
-    if (!isNaN(parseInt(id))) {
+    if (/^\d+$/.test(id)) {
       return { id, category: 'both' };
     }
 
